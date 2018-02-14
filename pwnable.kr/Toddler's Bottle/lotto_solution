@@ -1,0 +1,23 @@
+-------------Solution-------------
+
+1. lotto.c
+
+	for(i=0; i<6; i++){
+		lotto[i] = (lotto[i] % 45) + 1;		// 1 ~ 45
+	}
+  
+  1 ~ 45 doesn't include a numeric.
+  
+---------------------------------
+  
+	// calculate lotto score
+	int match = 0, j = 0;
+	for(i=0; i<6; i++){
+		for(j=0; j<6; j++){
+			if(lotto[i] == submit[j]){
+				match++;
+			}
+		}
+	}
+
+dosen't check the duplicate.
